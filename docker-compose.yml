@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  regulatory-app:
+    container_name: regulatory_flask_app
+    build: .
+    ports:
+      - "8080:5000" # Mapea el puerto local 8080 al 5000 del contenedor
+    restart: always
