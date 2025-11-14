@@ -4,7 +4,7 @@
 
 ## Requisitos Arquitectónicos
 
-Este prototipo funcional (30% de la evaluación) aborda la automatización de reportes regulatorios conforme a normativas (UIAF, SARLAFT, Basilea III, Habeas Data) mediante una arquitectura moderna, contenerizada y con despliegue continuo.
+Este prototipo funcional aborda la automatización de reportes regulatorios conforme a normativas (UIAF, SARLAFT, Basilea III, Habeas Data) mediante una arquitectura moderna, contenerizada y con despliegue continuo.
 
 | Requisito del Prototipo | Cumplimiento | Evidencia en el Repositorio |
 | :--- | :--- | :--- |
@@ -28,7 +28,7 @@ Este prototipo funcional (30% de la evaluación) aborda la automatización de re
 
 ---
 
-## 🛠️ 1. Implementación Local (Prototipo Funcional Obligatorio)
+##  1. Implementación Local 
 
 Este proceso permite la **funcionalidad en local con contenedor** (obligatorio).
 
@@ -49,7 +49,7 @@ Este proceso permite la **funcionalidad en local con contenedor** (obligatorio).
     ```
 3.  **Verificar el Prototipo Funcional:**
     * **Generar Reporte:** Accede a `http://localhost:5000/generate-sarlaft-report`. Esto simula el flujo automático de generación, retornando un archivo JSON con los datos de cumplimiento.
-    *(Nota: El puerto es 5000 según tu Dockerfile y logs, no 8080).*
+
 
 4.  **Detener:**
     ```bash
@@ -58,7 +58,7 @@ Este proceso permite la **funcionalidad en local con contenedor** (obligatorio).
 
 ---
 
-## ☁️ 2. Despliegue en la Nube (Evidencia CI/CD y Despliegue Final)
+##  2. Despliegue en la Nube (Evidencia CI/CD y Despliegue Final)
 
 Este proceso se gestiona automáticamente mediante **GitHub Actions** y utiliza **Docker Hub** y **Render**.
 
