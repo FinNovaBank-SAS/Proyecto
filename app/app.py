@@ -1,13 +1,12 @@
 from flask import Flask, jsonify, send_file
 import datetime
 import io
-# Importaciones necesarias de ReportLab
+import os # Importar la librería OS
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors # Para colores en el PDF
-from reportlab.platypus import Paragraph, Spacer, Image # Para manejar imágenes y texto más complejo
-from reportlab.lib.styles import getSampleStyleSheet # Para estilos de párrafo
-from reportlab.lib.units import inch # Para unidades de medida
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet 
+from reportlab.lib.units import inch
 
 app = Flask(__name__)
 
@@ -35,7 +34,7 @@ def generate_sarlaft_data():
     }
     return report_data
 
-# --- NUEVA Lógica de Generación de PDF CON LOGO Y MEJOR FORMATO ---
+# --- NUEVA Lógica de Generación de PDF CON RUTA ABSOLUTA ---
 def create_pdf(data):
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
@@ -44,20 +43,23 @@ def create_pdf(data):
     # Estilos de párrafo
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
-    styleH = styles['h1']
-    styleH.alignment = 1 # Centrado
+    
+    # CRÍTICO: Usar ruta absoluta para asegurar que ReportLab encuentre la imagen.
+    # El logo se copia a /app/static/finnova_logo.png
+    base_dir = os.path.dirname(os.path.abspath(__file__)) # Obtiene la ruta del script actual (que es /app/app.py)
+    # Volvemos un nivel y entramos a static, asumiendo que el logo es PNG
+    logo_path = os.path.join(base_dir, 'static', 'finnova_logo.jpg') 
     
     # --- CABECERA Y LOGO ---
-    # Ruta del logo (asumiendo que está en /app/static/finnova_logo.png dentro del contenedor)
-    logo_path = 'static/finnova_logo.png' 
     try:
-        # Ajusta las coordenadas y el tamaño según tu logo
+        # Dibujar la imagen
         p.drawImage(logo_path, width - 150, height - 90, width=100, height=50, preserveAspectRatio=True, mask='auto')
     except Exception as e:
-        print(f"No se pudo cargar el logo: {e}")
         # Si falla el logo, al menos dibuja un título
+        print(f"ERROR: No se pudo cargar el logo, verifique formato (PNG/JPG) y ruta: {logo_path}. Error: {e}")
         p.setFont("Helvetica-Bold", 18)
-        p.drawString(72, height - 72, "Reporte SARLAFT - FinNova Bank")
+        p.drawString(72, height - 72, "Reporte SARLAFT - FinNova Bank (Logo Faltante)")
+
 
     p.setFont("Helvetica-Bold", 24)
     p.setFillColor(colors.darkblue)

@@ -4,17 +4,16 @@ FROM python:3.10
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos de dependencia e instálalos
+# 1. Copia solo el archivo de dependencias e instálalos
 COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el resto del código de la aplicación (app/app.py)
-COPY app/ .
+# 2. Copia todo el contenido de la carpeta 'app' (incluyendo app.py y static/)
+#    al directorio de trabajo /app del contenedor.
+COPY app /app
 
 # Expone el puerto que usa Flask
 EXPOSE 5000
 
-# CRÍTICO: Usa Gunicorn para iniciar la aplicación.
-# Esto es más robusto y resuelve el "Application exited early".
-# 'app:app' significa: ejecutar el objeto Flask llamado 'app' dentro del archivo 'app.py'.
+# Usa Gunicorn para iniciar la aplicación (el servidor de producción)
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
