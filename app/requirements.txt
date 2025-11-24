@@ -1,4 +1,5 @@
-flask
+Flask
 reportlab
-gunicorn 
-Pillow 
+Pillow
+gunicorn
+pypdf
