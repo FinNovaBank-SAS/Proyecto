@@ -6,12 +6,11 @@ from reportlab.lib.pagesizes import letter
 
 app = Flask(__name__)
 
-# --- Lógica de Generación de Reporte (La misma que usabas) ---
+# --- Lógica de Generación de Reporte ---
 def generate_sarlaft_data():
     now = datetime.datetime.now()
     timestamp = now.strftime("%Y%m%d%H%M%S")
     
-    # Esta es la información que se usará en el PDF
     report_data = {
         "report_id": f"RPT-SARLAFT-{timestamp}",
         "regulator": "UIAF / SARLAFT",
@@ -31,26 +30,24 @@ def generate_sarlaft_data():
     }
     return report_data
 
-# --- NUEVA Lógica de Generación de PDF ---
+# --- Lógica de Generación de PDF ---
 def create_pdf(data):
-    # 1. Crear un buffer de memoria para el PDF
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # 2. Definir el Título y la Cabecera
     p.setFont("Helvetica-Bold", 18)
     p.drawString(72, height - 72, "Reporte SARLAFT - FinNova Bank")
     
     p.setFont("Helvetica", 10)
     y_position = height - 100
     
-    # 3. Dibujar datos clave
+    # Dibujar datos clave
     p.drawString(72, y_position, f"ID de Reporte: {data['report_id']}")
     p.drawString(72, y_position - 15, f"Regulador: {data['regulator']}")
     p.drawString(72, y_position - 30, f"Fecha de Generación: {data['date_generated'][:19]}")
     
-    # 4. Dibujar Resumen de Datos
+    # Dibujar Resumen
     p.setFont("Helvetica-Bold", 12)
     p.drawString(72, y_position - 60, "Resumen de Cumplimiento:")
     
@@ -59,7 +56,7 @@ def create_pdf(data):
     p.drawString(72, y_position - 95, f"Alertas Sospechosas (Alta): {data['data_summary']['suspicious_alerts_high']}")
     p.drawString(72, y_position - 110, f"Casos Reportables: {data['data_summary']['reportable_cases']}")
     
-    # 5. Dibujar Notas Regulatorias
+    # Dibujar Notas Regulatorias
     p.setFont("Helvetica-Bold", 12)
     p.drawString(72, y_position - 140, "Notas Regulatorias:")
     
@@ -68,22 +65,18 @@ def create_pdf(data):
     for i, note in enumerate(data['regulatory_notes']):
         p.drawString(72, y_position - 160 - (i * line_height), f"- {note}")
 
-    # 6. Finalizar el PDF
     p.showPage()
     p.save()
     buffer.seek(0)
     return buffer
 
-# --- ENDPOINT DE API MODIFICADO ---
+# --- ENDPOINT DE API (Versión final) ---
 @app.route('/generate-sarlaft-report', methods=['GET'])
 def generate_report():
-    # 1. Obtiene los datos del reporte (igual que antes)
     data = generate_sarlaft_data()
-    
-    # 2. Crea el PDF a partir de esos datos
     pdf_buffer = create_pdf(data)
     
-    # 3. Retorna el PDF como archivo descargable
+    # Retorna el PDF como archivo descargable
     return send_file(
         pdf_buffer,
         mimetype='application/pdf',
@@ -93,4 +86,7 @@ def generate_report():
 
 @app.route('/', methods=['GET'])
 def home():
-    return "Microservicio SARLAFT en Ejecución. Usa /generate-sarlaft-report para obtener el PDF."
+    # Mensaje de bienvenida para la raíz
+    return jsonify({
+        "message": "✅ Servicio de Automatización Regulatoria Activo. Accede a /generate-sarlaft-report para obtener el PDF."
+    })
