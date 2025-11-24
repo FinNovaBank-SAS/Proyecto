@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, send_file
 import datetime
 import io
-import os # Importar la librería OS
+# Importaciones necesarias de ReportLab y sus utilidades
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -10,8 +10,9 @@ from reportlab.lib.units import inch
 
 app = Flask(__name__)
 
-# --- Lógica de Generación de Reporte (SIN CAMBIOS) ---
+# --- Lógica de Generación de Datos ---
 def generate_sarlaft_data():
+    """Genera datos simulados para el reporte SARLAFT."""
     now = datetime.datetime.now()
     timestamp = now.strftime("%Y%m%d%H%M%S")
     
@@ -30,35 +31,33 @@ def generate_sarlaft_data():
             "El proceso cumple con los requerimientos de la Circular 001 de 2024.",
             "La privacidad de datos está asegurada conforme a Habeas Data."
         ],
-        "disclaimer": "Este es un reporte simulado."
+        "disclaimer": "Este es un reporte simulado. El objetivo es la prueba de la infraestructura CI/CD."
     }
     return report_data
 
-# --- NUEVA Lógica de Generación de PDF CON RUTA ABSOLUTA ---
+# --- Lógica de Generación de PDF ---
 def create_pdf(data):
+    """Crea el contenido del reporte SARLAFT en formato PDF."""
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Estilos de párrafo
+    # Estilos básicos
     styles = getSampleStyleSheet()
-    styleN = styles['Normal']
     
-    # CRÍTICO: Usar ruta absoluta para asegurar que ReportLab encuentre la imagen.
-    # El logo se copia a /app/static/finnova_logo.png
-    base_dir = os.path.dirname(os.path.abspath(__file__)) # Obtiene la ruta del script actual (que es /app/app.py)
-    # Volvemos un nivel y entramos a static, asumiendo que el logo es PNG
-    logo_path = os.path.join(base_dir, 'static', 'finnova_logo.jpg') 
+    # CRÍTICO: Usamos la ruta absoluta del contenedor (WORKDIR /app)
+    # Asegúrese de que el archivo se llame 'finnova_logo.jpg' y esté en app/static/
+    logo_path = '/app/static/finnova_logo.jpg' 
     
     # --- CABECERA Y LOGO ---
     try:
-        # Dibujar la imagen
+        # Dibujar la imagen. Coordenadas (x, y), donde (0,0) es la esquina inferior izquierda.
         p.drawImage(logo_path, width - 150, height - 90, width=100, height=50, preserveAspectRatio=True, mask='auto')
     except Exception as e:
-        # Si falla el logo, al menos dibuja un título
-        print(f"ERROR: No se pudo cargar el logo, verifique formato (PNG/JPG) y ruta: {logo_path}. Error: {e}")
+        # Fallback si el logo no se encuentra o el formato es incorrecto
+        print(f"FALLA FATAL DEL LOGO: Error al cargar la imagen. Ruta: {logo_path}. Error: {e}")
         p.setFont("Helvetica-Bold", 18)
-        p.drawString(72, height - 72, "Reporte SARLAFT - FinNova Bank (Logo Faltante)")
+        p.drawString(72, height - 72, "Reporte SARLAFT - FinNova Bank (¡SIN LOGO!)")
 
 
     p.setFont("Helvetica-Bold", 24)
@@ -116,9 +115,10 @@ def create_pdf(data):
     buffer.seek(0)
     return buffer
 
-# --- ENDPOINTS (SIN CAMBIOS) ---
+# --- ENDPOINTS ---
 @app.route('/generate-sarlaft-report', methods=['GET'])
 def generate_report():
+    """Endpoint para generar y descargar el PDF."""
     data = generate_sarlaft_data()
     pdf_buffer = create_pdf(data)
     
@@ -131,6 +131,7 @@ def generate_report():
 
 @app.route('/', methods=['GET'])
 def home():
+    """Endpoint principal de prueba."""
     return jsonify({
         "message": "✅ Servicio de Automatización Regulatoria Activo. Accede a /generate-sarlaft-report para obtener el PDF."
     })
